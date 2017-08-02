@@ -2487,11 +2487,8 @@ typedef struct summary_struct
 
 typedef struct solute_struct
 {
-    double          conc_surf;
     double          conc_subsurf;
-    double          infilflux;
     double          snksrc;
-    double          ovlflux[NUM_EDGE];
     double          subflux[NUM_EDGE];
 } solute_struct;
 

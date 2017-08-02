@@ -119,73 +119,14 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #ifdef _BGC_
-        dy[SURFN(i)] +=
-            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
-            elem->nsol.infilflux;
-        dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
+        dy[SMINN(i)] +=
+            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
+            elem->nsol.snksrc;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
             dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
-#endif
-    }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nriver; i++)
-    {
-        int         j;
-        river_struct *riv;
-
-        riv = &(pihm->riv[i]);
-
-        for (j = 0; j <= 6; j++)
-        {
-            /* Note the limitation due to
-             * d(v)/dt=a*dy/dt+y*da/dt
-             * for cs other than rectangle */
-            dy[RIVSTG (i)] -= riv->wf.rivflow[j] / riv->topo.area;
-        }
-
-        dy[RIVGW (i)] += 0.0 -
-            riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
-            riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
-            riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
-
-        dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
-
-        if (isnan (dy[RIVSTG (i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (stage) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-        if (isnan (dy[RIVGW (i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (groundwater) at"
-                "%lf\n", i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-
-#ifdef _BGC_
-        for (j = 0; j <= 6; j++)
-        {
-            dy[STREAMN (i)] -= riv->nsol.flux[j] / riv->topo.area;
-        }
-
-        dy[RIVBEDN (i)] += 0.0 -
-            riv->nsol.flux[LEFT_AQUIF2AQUIF] -
-            riv->nsol.flux[RIGHT_AQUIF2AQUIF] -
-            riv->nsol.flux[DOWN_AQUIF2AQUIF] -
-            riv->nsol.flux[UP_AQUIF2AQUIF] + riv->nsol.flux[CHANL_LKG];
-
-        dy[RIVBEDN (i)] /= riv->topo.area;
 #endif
     }
 
