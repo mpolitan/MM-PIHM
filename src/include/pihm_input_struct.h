@@ -34,6 +34,7 @@ typedef struct filename_struct
     char            att[MAXSTRING];
     char            soil[MAXSTRING];
     char            geol[MAXSTRING];
+    char            bedrock[MAXSTRING];
     char            lc[MAXSTRING];
     char            meteo[MAXSTRING];
     char            lai[MAXSTRING];
@@ -143,8 +144,9 @@ typedef struct matltbl_struct
  * nabr                     int**       neighbors of element
  * x                        double*     x of node [m]
  * y                        double*     y of node [m]
- * zmin                     double*     bedrock elevation of node [m]
+ * zmin                     double*     soil bottom elevation of node [m]
  * zmax                     double*     surface elevation of node [m]
+ * zbed                     double*     impermeable bedrock elevation [m]
  ****************************************************************************/
 typedef struct meshtbl_struct
 {
@@ -155,6 +157,9 @@ typedef struct meshtbl_struct
     double         *y;
     double         *zmin;
     double         *zmax;
+#ifdef _FBR_
+    double         *zbed;
+#endif
 } meshtbl_struct;
 
 /*****************************************************************************
