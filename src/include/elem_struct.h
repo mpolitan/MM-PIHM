@@ -198,6 +198,21 @@ typedef struct soil_struct
 #endif
 } soil_struct;
 
+/*******************************************************************************
+ * Fractured bedrock layer parameters
+ ******************************************************************************/
+ typedef struct geol_struct
+ {
+    double          depth;
+    double          ksath;
+    double          ksatv;
+    double          alpha;
+    double          beta;
+    double          porosity;
+    double          smcmax;
+    double          smcmin;
+} geol_struct;
+
 /*****************************************************************************
  * Land cover parameters
  * ---------------------------------------------------------------------------
@@ -2526,6 +2541,9 @@ typedef struct elem_struct
     attrib_struct   attrib;
     topo_struct     topo;
     soil_struct     soil;
+#ifdef _FBR_
+    geol_struct     geol;
+#endif
     lc_struct       lc;
     epconst_struct  epc;
     ic_struct       ic;
