@@ -745,6 +745,11 @@ void SaturationIC (elem_struct *elem, river_struct *riv)
         elem[i].ic.unsat = 0.1;
         elem[i].ic.gw = elem[i].soil.depth - 0.1;
 
+#ifdef _FBR_
+        elem[i].ic.fbr_unsat = 0.0;
+        elem[i].ic.fbr_gw = elem[i].geol.depth;
+#endif
+
 #ifdef _NOAH_
         sfctmp = elem[i].es.sfctmp;
 
@@ -809,10 +814,18 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         elem[i].ws.surf = elem[i].ic.surf;
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw = elem[i].ic.gw;
+#ifdef _FBR_
+        elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
+        elem[i].ws.fbr_gw = elem[i].ic.fbr_gw;
+#endif
 
         NV_Ith (CV_Y, SURF(i)) = elem[i].ic.surf;
         NV_Ith (CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith (CV_Y, GW(i)) = elem[i].ic.gw;
+#ifdef _FBR_
+        NV_Ith (CV_Y, FBRUNSAT(i)) = elem[i].ic.fbr_unsat;
+        NV_Ith (CV_Y, FBRGW(i)) = elem[i].ic.fbr_gw;
+#endif
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
