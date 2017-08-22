@@ -602,6 +602,10 @@ typedef struct wstate_struct
     double          cmcmax;
     double          cmc;
     double          surfh;
+#ifdef _FBR_
+    double          fbr_unsat;
+    double          fbr_gw;
+#endif
 #ifdef _NOAH_
     double          smc[MAXLYR];
     double          sh2o[MAXLYR];
@@ -1069,6 +1073,10 @@ typedef struct ic_struct
     double          surf;
     double          unsat;
     double          gw;
+#ifdef _FBR_
+    double          fbr_unsat;
+    double          fbr_gw;
+#endif
 #ifdef _NOAH_
     double          t1;
     double          snowh;

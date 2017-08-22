@@ -3,10 +3,12 @@
 
 #define _ARITH_
 
-#ifdef _BGC_
-#define NSV             5 * nelem + 4 * nriver
+#if defined _FBR_
+#  define NSV           5 * nelem + 2 * nriver
+#elif defined _BGC_
+#  define NSV           5 * nelem + 4 * nriver
 #else
-#define NSV             3 * nelem + 2 * nriver
+#  define NSV           3 * nelem + 2 * nriver
 #endif
 
 #define SURF(i)         i
@@ -14,6 +16,11 @@
 #define GW(i)           i + 2 * nelem
 #define RIVSTG(i)       i + 3 * nelem
 #define RIVGW(i)        i + 3 * nelem + nriver
+
+#ifdef _FBR_
+#define FBRUNSAT(i)     i + 3 * nelem + 2 * nriver
+#define FBRGW(i)        i + 4 * nelem + 2 * nriver
+#endif
 
 #ifdef _BGC_
 #define SURFN(i)        i + 3 * nelem + 2 * nriver
