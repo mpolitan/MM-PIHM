@@ -12,6 +12,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     for (i = 0; i < nelem; i++)
     {
         pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
+        pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -41,6 +42,10 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
         &pihm->noahtbl,
 #endif
         &pihm->cal);
+
+#ifdef _FBR_
+    InitGeol (pihm->elem, &pihm->geoltbl, &pihm->cal);
+#endif
 
     InitLC (pihm->elem, &pihm->lctbl, &pihm->cal);
 
@@ -143,6 +148,9 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
     double          y[NUM_EDGE];
     double          zmin[NUM_EDGE];
     double          zmax[NUM_EDGE];
+#ifdef _FBR_
+    double          zbed[NUM_EDGE];
+#endif
 
     for (i = 0; i < nelem; i++)
     {
@@ -152,6 +160,9 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
             y[j] = meshtbl->y[elem[i].node[j] - 1];
             zmin[j] = meshtbl->zmin[elem[i].node[j] - 1];
             zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
+#ifdef _FBR_
+            zbed[j] = meshtbl->zbed[elem[i].node[j] - 1];
+#endif
         }
 
         elem[i].topo.area = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) -
@@ -162,6 +173,9 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
 
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
+#ifdef _FBR_
+        elem[i].topo.zbed = (zbed[0] + zbed[1] + zbed[2]) / 3.0;
+#endif
         elem[i].topo.edge[0] =
             sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
         elem[i].topo.edge[1] =
@@ -236,6 +250,35 @@ void InitSoil (elem_struct *elem, const soiltbl_struct *soiltbl,
         elem[i].soil.quartz = soiltbl->qtz[soil_ind];
         elem[i].soil.smcdry = elem[i].soil.smcwlt;
 #endif
+    }
+}
+
+void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
+    const calib_struct *cal)
+{
+    int             i;
+    int             geol_ind;
+
+    for (i = 0; i < nelem; i++)
+    {
+        geol_ind = elem[i].attrib.geol_type - 1;
+
+        elem[i].geol.depth = elem[i].topo.zmin - elem[i].topo.zbed;
+
+        elem[i].geol.ksath = cal->ksath * geoltbl->ksath[geol_ind];
+        elem[i].geol.ksatv = cal->ksatv * geoltbl->ksatv[geol_ind];
+
+        elem[i].geol.smcmin = cal->porosity * geoltbl->smcmin[geol_ind];
+        elem[i].geol.smcmax = cal->porosity * geoltbl->smcmax[geol_ind];
+        elem[i].geol.porosity = elem[i].geol.smcmax - elem[i].geol.smcmin;
+        if (elem[i].geol.porosity > 1.0 || elem[i].geol.porosity <= 0.0)
+        {
+            PIHMprintf (VL_ERROR,
+                "Error: Porosity value out of bounds for Element %d", i + 1);
+            PIHMexit (EXIT_FAILURE);
+        }
+        elem[i].geol.alpha = cal->alpha * geoltbl->alpha[geol_ind];
+        elem[i].geol.beta = cal->beta * geoltbl->beta[geol_ind];
     }
 }
 

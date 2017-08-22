@@ -77,6 +77,8 @@ void            InitForcing (elem_struct *, forc_struct *,
     , int, int
 #endif
     );
+void            InitGeol (elem_struct *, const geoltbl_struct *,
+    const calib_struct *);
 void            InitLC (elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct (elem_struct *, const meshtbl_struct *);

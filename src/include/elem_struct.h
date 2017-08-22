@@ -15,6 +15,7 @@
 typedef struct attrib_struct
 {
     int             soil_type;
+    int             geol_type;
     int             lc_type;
     int             bc_type[NUM_EDGE];
     int             meteo_type;
@@ -58,6 +59,9 @@ typedef struct topo_struct
     double          y;
     double          zmin;
     double          zmax;
+#ifdef _FBR_
+    double          zbed;
+#endif
     double          edge[NUM_EDGE];
     double          nabrdist[NUM_EDGE];
     double          nabrdist_x[NUM_EDGE];
