@@ -34,6 +34,11 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
+#ifdef _FBR_
+        elem->ws.fbr_unsat = (y[FBRUNSAT(i)] >= 0.0) ? y[FBRUNSAT(i)] : 0.0;
+        elem->ws.fbr_gw = (y[FBRGW(i)] >= 0.0) ? y[FBRGW(i)] : 0.0;
+#endif
+
 #ifdef _BGC_
         elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
@@ -86,15 +91,28 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg -
             elem->wf.edir_unsat - elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
+#ifdef _FBR_
+        dy[GW(i)] -= elem->wf.leakage;
 
+        dy[FBRUNSAT(i)] += elem->wf.leakage - elem->wf.fbr_rechg;
+        dy[FBRGW(i)] += elem->wf.fbr_rechg;
+#endif
         for (j = 0; j < NUM_EDGE; j++)
         {
             dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
             dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
+#ifdef _FBR_
+            dy[FBRGW(i)] -= elem->wf.fbrflow[j] / elem->topo.area;
+#endif
         }
 
         dy[UNSAT(i)] /= elem->soil.porosity;
         dy[GW(i)] /= elem->soil.porosity;
+
+#ifdef _FBR_
+        dy[FBRUNSAT(i)] /= elem->geol.porosity;
+        dy[FBRGW(i)] /= elem->geol.porosity;
+#endif
 
         if (isnan (dy[SURF(i)]))
         {
@@ -117,6 +135,23 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 i + 1, t);
             PIHMexit (EXIT_FAILURE);
         }
+
+#ifdef _FBR_
+        if (isnan (dy[FBRUNSAT(i)]))
+        {
+            PIHMprintf (VL_ERROR,
+                "Error: NAN error for Element %d (bedrock unsat zone) at %lf\n",
+                i + 1, t);
+            PIHMexit (EXIT_FAILURE);
+        }
+        if (isnan (dy[FBRGW(i)]))
+        {
+            PIHMprintf (VL_ERROR,
+                "Error: NAN error for Element %d (deep groundwater) at %lf\n",
+                i + 1, t);
+            PIHMexit (EXIT_FAILURE);
+        }
+#endif
 
 #ifdef _BGC_
         dy[SURFN(i)] +=

@@ -523,4 +523,9 @@ void            WriteBgcIC (char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);
 #endif
+
+#ifdef _FBR_
+void            FBRLatFlow (elem_struct *, river_struct *);
+#endif
+
 #endif

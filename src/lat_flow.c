@@ -148,6 +148,10 @@ void LateralFlow (pihm_struct pihm)
 
     free (dhbydx);
     free (dhbydy);
+
+#ifdef _FBR_
+    FBRLatFlow(pihm->elem, pihm->riv);
+#endif
 }
 
 void FrictSlope (elem_struct *elem, river_struct *riv, int surf_mode,
@@ -307,3 +311,53 @@ double OverlandFlow (double avg_y, double grad_y, double avg_sf,
     return (crossa * pow (avg_y,
             2.0 / 3.0) * grad_y / (sqrt (fabs (avg_sf)) * avg_rough));
 }
+
+#ifdef _FBR_
+void FBRLatFlow (elem_struct *elem, river_struct *riv)
+{
+    /*
+     * Fractured bedrock lateral flux calculation between triangular
+     * elements
+     */
+    int             i, j;
+    elem_struct    *nabr;
+    double          dif_y_fbr;
+    double          avg_y_fbr;
+    double          grad_y_fbr;
+    double          avg_ksat;
+
+    for (i = 0; i < nelem; i++)
+    {
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (elem[i].nabr[j] == 0)
+            {
+                elem[i].wf.fbrflow[j] = 0.0;
+            }
+            else
+            {
+                if (elem[i].nabr[j] > 0)
+                {
+                    nabr = &elem[elem[i].nabr[j]];
+                }
+                else
+                {
+                    nabr = (riv[-elem[i].nabr[j] - 1].leftele == elem[i].ind) ?
+                        &elem[riv[-elem[i].nabr[j] - 1].rightele - 1] :
+                        &elem[riv[-elem[i].nabr[j] - 1].leftele - 1];
+                }
+
+                dif_y_fbr =
+                    (elem->ws.fbr_gw + elem->topo.zbed) -
+                    (nabr->ws.fbr_gw + nabr->topo.zbed);
+                avg_y_fbr = AvgY (dif_y_fbr, elem->ws.fbr_gw, nabr->ws.fbr_gw);
+                grad_y_fbr = dif_y_fbr / elem->topo.nabrdist[j];
+                avg_ksat = 0.5 * (elem->geol.ksath + nabr->geol.ksath);
+                /* Groundwater flow modeled by Darcy's Law */
+                elem->wf.fbrflow[j] =
+                    avg_ksat * grad_y_fbr * avg_y_fbr * elem->topo.edge[j];
+            }
+        }
+    }
+}
+#endif

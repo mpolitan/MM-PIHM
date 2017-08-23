@@ -707,6 +707,11 @@ typedef struct wflux_struct
     double          edir_gw;
     double          ett_unsat;
     double          ett_gw;
+#ifdef _FBR_
+    double          leakage;
+    double          fbr_rechg;
+    double          fbrflow[NUM_EDGE];
+#endif
 #ifdef _NOAH_
     double          et[MAXLYR];
     double          runoff2;
