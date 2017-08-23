@@ -50,14 +50,6 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /* Read soil input file */
     ReadSoil (pihm->filename.soil, &pihm->soiltbl);
 
-#ifdef _FBR_
-    /* Read geology input file */
-    ReadGeol (pihm->filename.geol, &pihm->geoltbl);
-
-    /* Read bedrock input file */
-    ReadBedrock (pihm->filename.bedrock, &pihm->meshtbl);
-#endif
-
     /* Read land cover input file */
     ReadLC (pihm->filename.lc, &pihm->lctbl);
 
@@ -80,6 +72,14 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     /* Read calibration input file */
     ReadCalib (pihm->filename.calib, &pihm->cal);
+
+#ifdef _FBR_
+    /* Read geology input file */
+    ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+
+    /* Read bedrock input file */
+    ReadBedrock (pihm->filename.bedrock, &pihm->meshtbl, &pihm->ctrl);
+#endif
 
 #ifdef _NOAH_
     /* Read LSM input file */
@@ -662,7 +662,7 @@ void ReadGeol(char *filename, geoltbl_struct *geoltbl)
     fclose (geol_file);
 }
 
-void ReadBedrock(char *filename, meshtbl_struct *meshtbl)
+void ReadBedrock(char *filename, meshtbl_struct *meshtbl, ctrl_struct *ctrl)
 {
     FILE           *br_file;
     int             i;
@@ -695,6 +695,25 @@ void ReadBedrock(char *filename, meshtbl_struct *meshtbl)
             PIHMexit (EXIT_FAILURE);
         }
     }
+
+    NextLine (br_file, cmdstr, &lno);
+    ctrl->prtvrbl[FBRUNSAT_CTRL] =
+        ReadPrtCtrl (cmdstr, "FBRUNSAT", filename, lno);
+
+    NextLine (br_file, cmdstr, &lno);
+    ctrl->prtvrbl[FBRGW_CTRL] =
+        ReadPrtCtrl (cmdstr, "FBRGW", filename, lno);
+
+    NextLine (br_file, cmdstr, &lno);
+    ctrl->prtvrbl[LEAKAGE_CTRL] = ReadPrtCtrl(cmdstr, "LEAKAGE", filename, lno);
+
+    NextLine (br_file, cmdstr, &lno);
+    ctrl->prtvrbl[FBRRECHG_CTRL] =
+        ReadPrtCtrl (cmdstr, "FBRRECHG", filename, lno);
+
+    NextLine (br_file, cmdstr, &lno);
+    ctrl->prtvrbl[FBRFLOW_CTRL] =
+        ReadPrtCtrl (cmdstr, "FBRFLOW", filename, lno);
 
     fclose (br_file);
 }

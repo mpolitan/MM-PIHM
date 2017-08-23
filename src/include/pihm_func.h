@@ -145,7 +145,7 @@ double          PtfThetaS (double, double, double, double, int);
 double          Qtz (int);
 void            ReadAlloc (char *, pihm_struct);
 void            ReadAtt (char *, atttbl_struct *);
-void            ReadBedrock(char *, meshtbl_struct *);
+void            ReadBedrock(char *, meshtbl_struct *, ctrl_struct *);
 void            ReadBC (char *, forc_struct *);
 void            ReadCalib (char *, calib_struct *);
 void            ReadForc (char *, forc_struct *);

@@ -1258,6 +1258,87 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     break;
 
 #endif
+#ifdef _FBR_
+                case FBRUNSAT_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.fbrunsat", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = HYDROL_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.fbr_unsat;
+                    }
+                    n++;
+                    break;
+                case FBRGW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.fbrgw", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = HYDROL_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.fbr_gw;
+                    }
+                    n++;
+                    break;
+                case LEAKAGE_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.leakage", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = HYDROL_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.leakage;
+                    }
+                    n++;
+                    break;
+                case FBRRECHG_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.fbrrechg", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = HYDROL_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.fbr_rechg;
+                    }
+                    n++;
+                    break;
+                case FBRFLOW_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.fbrflow%d",
+                            outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].upd_intvl = HYDROL_STEP;
+                        pihm->prtctrl[n].nvar = nelem;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < nelem; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].wf.fbrflow[k];
+                        }
+                        n++;
+                    }
+                    break;
+#endif
                 default:
                     break;
             }

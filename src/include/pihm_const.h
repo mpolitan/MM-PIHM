@@ -292,6 +292,11 @@
 #define LEAFC_CTRL              67
 #define LIVESTEMC_CTRL          68
 #define DEADSTEMC_CTRL          69
+#define FBRUNSAT_CTRL           70
+#define FBRGW_CTRL              71
+#define LEAKAGE_CTRL            72
+#define FBRRECHG_CTRL           73
+#define FBRFLOW_CTRL            74
 
 
 #ifdef _CYCLES_
