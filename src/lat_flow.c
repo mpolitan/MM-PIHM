@@ -338,7 +338,7 @@ void FBRLatFlow (elem_struct *elem, river_struct *riv)
             {
                 if (elem[i].nabr[j] > 0)
                 {
-                    nabr = &elem[elem[i].nabr[j]];
+                    nabr = &elem[elem[i].nabr[j] - 1];
                 }
                 else
                 {
@@ -348,14 +348,14 @@ void FBRLatFlow (elem_struct *elem, river_struct *riv)
                 }
 
                 dif_y_fbr =
-                    (elem->ws.fbr_gw + elem->topo.zbed) -
+                    (elem[i].ws.fbr_gw + elem[i].topo.zbed) -
                     (nabr->ws.fbr_gw + nabr->topo.zbed);
-                avg_y_fbr = AvgY (dif_y_fbr, elem->ws.fbr_gw, nabr->ws.fbr_gw);
-                grad_y_fbr = dif_y_fbr / elem->topo.nabrdist[j];
-                avg_ksat = 0.5 * (elem->geol.ksath + nabr->geol.ksath);
+                avg_y_fbr = AvgY (dif_y_fbr, elem[i].ws.fbr_gw, nabr->ws.fbr_gw);
+                grad_y_fbr = dif_y_fbr / elem[i].topo.nabrdist[j];
+                avg_ksat = 0.5 * (elem[i].geol.ksath + nabr->geol.ksath);
                 /* Groundwater flow modeled by Darcy's Law */
-                elem->wf.fbrflow[j] =
-                    avg_ksat * grad_y_fbr * avg_y_fbr * elem->topo.edge[j];
+                elem[i].wf.fbrflow[j] =
+                    avg_ksat * grad_y_fbr * avg_y_fbr * elem[i].topo.edge[j];
             }
         }
     }

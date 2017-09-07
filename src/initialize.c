@@ -747,7 +747,7 @@ void SaturationIC (elem_struct *elem, river_struct *riv)
 
 #ifdef _FBR_
         elem[i].ic.fbr_unsat = 0.0;
-        elem[i].ic.fbr_gw = elem[i].geol.depth;
+        elem[i].ic.fbr_gw = 5.0;
 #endif
 
 #ifdef _NOAH_

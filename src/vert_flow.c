@@ -163,24 +163,29 @@ void VerticalFlow (pihm_struct pihm)
          */
         if (elem->ws.fbr_gw >= elem->geol.depth)
         {
-            dh_by_dz =
-                (elem->ws.gw + elem->topo.zmin -
-                (elem->ws.fbr_gw + elem->topo.zbed)) /
-                (0.5 * (elem->ws.gw + elem->topo.zmin));
+            if (elem->ws.fbr_gw + elem->topo.zbed >
+                elem->ws.gw + elem->topo.zmin)
+            {
+                dh_by_dz =
+                    (elem->ws.gw + elem->topo.zmin -
+                    (elem->ws.fbr_gw + elem->topo.zbed)) /
+                    (0.5 * (elem->ws.fbr_gw + elem->topo.zbed));
 
-            kavg =
-                (elem->ws.gw * elem->soil.ksatv +
-                elem->ws.fbr_gw * elem->geol.ksatv) /
-                (elem->ws.gw + elem->ws.fbr_gw);
+                kavg =
+                    (elem->ws.gw * elem->soil.ksatv +
+                    elem->ws.fbr_gw * elem->geol.ksatv) /
+                    (elem->ws.gw + elem->ws.fbr_gw);
 
-            elem->wf.leakage = kavg * dh_by_dz;
+                elem->wf.leakage = kavg * dh_by_dz;
 
-            elem->wf.leakage =
-                (elem->wf.leakage > 0.0 && elem->ws.gw <= 0.0) ?
-                0.0 : elem->wf.leakage;
-            elem->wf.leakage =
-                (elem->wf.leakage < 0.0 && elem->ws.fbr_gw <= 0.0) ?
-                0.0 : elem->wf.leakage;
+                elem->wf.leakage =
+                    (elem->wf.leakage < 0.0 && elem->ws.fbr_gw <= 0.0) ?
+                    0.0 : elem->wf.leakage;
+            }
+            else
+            {
+                elem->wf.leakage = -elem->soil.ksatv;
+            }
 
             elem->wf.fbr_rechg = elem->wf.leakage;
         }
@@ -196,7 +201,7 @@ void VerticalFlow (pihm_struct pihm)
             psi_u = Psi (satn, elem->geol.alpha, elem->geol.beta);
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-            h_u = psi_u + elem->topo.zbed - 0.5 * deficit;
+            h_u = psi_u + elem->topo.zmin - 0.5 * deficit;
 
             satkfunc = KrFunc (elem->geol.alpha, elem->geol.beta, satn);
 
@@ -211,9 +216,14 @@ void VerticalFlow (pihm_struct pihm)
                     (0.5 * (elem->ws.gw + deficit));
 
                 elem->wf.leakage =
+                    (elem->ws.gw + deficit) /
+                    (elem->ws.gw / elem->soil.ksatv +
+                    deficit / (elem->geol.ksatv * satkfunc));
+#if OBSOLETE
                     (elem->ws.gw * elem->soil.ksatv +
                     deficit * elem->geol.ksatv * satkfunc) /
-                    (elem->ws.gw + deficit);
+                    (elem->ws.gw + deficit) * dh_by_dz;
+#endif
             }
 
             dh_by_dz =
